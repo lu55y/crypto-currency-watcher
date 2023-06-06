@@ -42,9 +42,9 @@ public class CurrencyService {
     @Scheduled(fixedRate = 60000)
     public void updateCurrencies() {
         List<Currency> currencyList = getCurrencyActualInfoOnCoinloreAPI();
-        System.out.println(currencyList);
         if (currencyList != null) {
             currencyRepository.saveAllAndFlush(currencyList);
+            log.info(currencyList.toString());
         }
         checkDifferenceUsersCurrency();
     }
