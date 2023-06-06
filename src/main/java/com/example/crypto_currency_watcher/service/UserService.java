@@ -10,7 +10,6 @@ import com.example.crypto_currency_watcher.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,41 +21,44 @@ public class UserService {
     private final UserRepository userRepository;
     private final CurrencyRepository currencyRepository;
 
-    @Transactional(readOnly = true)
     public void addUserNotify(UserRequest userRequest) throws CurrencyNotFoundException {
-        User user = new User();
         Currency currency = currencyRepository
-                .findBySymbol(userRequest.getSymbol())
-                .orElseThrow(() -> new CurrencyNotFoundException(userRequest.getSymbol()));
-
-        user.setUsername(userRequest.getUsername());
-        user.setCurrencySymbol(currency.getSymbol());
-        user.setCurrencyPrice_usd(currency.getPrice_usd());
-
+                .findBySymbol(userRequest.getCurrencySymbol())
+                .orElseThrow(() -> new CurrencyNotFoundException(userRequest.getCurrencySymbol()));
+        User user = userRequestToUser(userRequest, currency);
         userRepository.save(user);
     }
 
-    public List<UserResponse> findAllUsersByUsername(List<String> username) {
-        return userRepository.findAllByUsernameIn(username).stream()
+    public List<UserResponse> findAllUsersByUsername(String username) {
+        return userRepository.findAllByUsername(username).stream()
                 .map(this::userToUserResponse)
                 .toList();
     }
 
-/*    public List<UserResponse> findAllUsers() {
+    public List<UserResponse> findAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::userToUserResponse)
                 .toList();
-    }*/
+    }
 
-    public void deleteUser(String username) {
-        userRepository.deleteUserByUsername(username);
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 
     private UserResponse userToUserResponse(User user) {
         return UserResponse.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .currencySymbol(user.getCurrencySymbol())
                 .currencyPrice_usd(user.getCurrencyPrice_usd())
                 .build();
+    }
+
+    private User userRequestToUser(UserRequest request, Currency currency){
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setCurrencySymbol(currency.getSymbol());
+        user.setCurrencyPrice_usd(currency.getPrice_usd());
+        return user;
     }
 }

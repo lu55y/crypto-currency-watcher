@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class UserResponse {
+    private Long id;
     private String username;
     private String currencySymbol;
     private BigDecimal currencyPrice_usd;

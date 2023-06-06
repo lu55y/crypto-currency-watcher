@@ -28,21 +28,21 @@ public class UserController {
         }
     }
 
-    @GetMapping
+    @GetMapping("{username}")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserResponse> findUsers(@RequestParam List<String> username) {
+    public List<UserResponse> findAllByUsername( @PathVariable("username")  String username) {
         return userService.findAllUsersByUsername(username);
     }
 
-/*    @GetMapping
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<UserResponse> findAllUsers() {
         return userService.findAllUsers();
-    }*/
+    }
 
-    @DeleteMapping("{username}")
+    @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteUser(@PathVariable("username") String username) {
-        userService.deleteUser(username);
+    public void deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
     }
 }

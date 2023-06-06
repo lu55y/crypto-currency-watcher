@@ -8,7 +8,5 @@ import java.util.Optional;
 
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
     Optional<Currency> findBySymbol(String symbol);
-
-//    Currency findBySymbol(String symbol);
     List<Currency> findAllBySymbolIn (List<String> symbol);
 }

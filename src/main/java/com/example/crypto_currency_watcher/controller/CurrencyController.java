@@ -15,15 +15,15 @@ public class CurrencyController {
 
     private final CurrencyService currencyService;
 
-    @GetMapping
+    @GetMapping("{symbol}")
     @ResponseStatus(HttpStatus.OK)
-    public List<CurrencyResponse> findBySymbol(@RequestParam List<String> symbol) {
+    public CurrencyResponse findBySymbol(@PathVariable("symbol") String symbol) {
         return currencyService.findCurrencyBySymbol(symbol);
     }
 
-/*    @GetMapping
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CurrencyResponse> getAllCurrencies() {
-        return currencyService.getCurrencies();
-    }*/
+        return currencyService.findAllCurrencies();
+    }
 }

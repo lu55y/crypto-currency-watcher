@@ -11,13 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,17 +28,17 @@ public class CurrencyService {
     private final UserRepository userRepository;
     private final WebClient webClient;
 
-/*    public List<CurrencyResponse> getCurrencies() {
-        List<Currency> currencies = currencyRepository.findAll();
-        return currencies.stream().map(this::mapToCurrencyResponse).toList();
-    }*/
-
-    public List<CurrencyResponse> findCurrencyBySymbol(List<String> symbol) {
-        List<Currency> currenciesById = currencyRepository.findAllBySymbolIn(symbol);
-        return currenciesById.stream().map(this::mapToCurrencyResponse).toList();
+    public CurrencyResponse findCurrencyBySymbol(String symbol) {
+        Optional<Currency> bySymbol = currencyRepository.findBySymbol(symbol);
+        return mapToCurrencyResponse(bySymbol.orElseThrow());
     }
 
-    @Transactional(readOnly = true)
+    public List<CurrencyResponse> findAllCurrencies(){
+        return currencyRepository.findAll().stream()
+                .map(this::mapToCurrencyResponse)
+                .toList();
+    }
+
     @Scheduled(fixedRate = 60000)
     public void updateCurrencies() {
         List<Currency> currencyList = getCurrencyActualInfoOnCoinloreAPI();
@@ -76,19 +76,6 @@ public class CurrencyService {
                 .map(Objects::toString)
                 .collect(Collectors.joining(","));
     }
-
-
-/*
-    private List<CurrencyResponse> getCurrencyResponses(List<Long> currenciesId) {
-        Mono<List<CurrencyResponse>> response = webClient.get()
-                .uri("https://api.coinlore.net/api/ticker/?id=", currenciesId)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<>() {
-                });
-        return response.block();
-    }
-*/
 
     private List<CurrencyResponse> makeRequestOnCoinloreAPI(String stringsIdForURI) {
         ResponseEntity<List<CurrencyResponse>> responseEntity = webClient.get()
@@ -143,8 +130,7 @@ public class CurrencyService {
                     .multiply(new BigDecimal("100.00"))
                     .setScale(2, RoundingMode.CEILING);
             //x=y
-            default -> /*result = result.setScale(2, RoundingMode.CEILING);*/
-                    result = new BigDecimal("0.00");
+            default -> result = new BigDecimal("0.00");
         }
         return result;
     }

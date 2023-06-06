@@ -9,20 +9,25 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "currencies")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Currency{
+@Table(name = "currencies")
+public class Currency {
     @Id
     @Column(name = "id")
     private Long id;
+
     @Column(name = "symbol")
     private String symbol;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "price_usd")
     private BigDecimal price_usd;
 }
+
+
